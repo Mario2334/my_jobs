@@ -1,15 +1,21 @@
+import datetime
 import re
 
 import requests
 from bs4 import BeautifulSoup
+
+from datasets import mongoclient
 
 
 class mine:
     def __init__(self):
         self.base = 'http://worknhire.com'
         self.location = self.base + '/WorkProjects/jobs'
-        self.keywords = open('Keywords').readlines()
+        self.keywords = open('C:\Users\Hellrazer\PycharmProjects\my_jobs\Keywords').readlines()
         self.data_dict = dict()
+        self.chosen_data_dict = dict()
+        self.db = mongoclient()
+
 
     def parseing(self, location):
         data = requests.get(location)
@@ -19,15 +25,26 @@ class mine:
         data = self.parseing(self.location)
         # job_list = data.find_all('h2', attrs={'class': 'project-title'})
         self.interesting(data, self.keywords)
-        if self.data_dict.keys() == 0:
+        print (len(self.chosen_data_dict.keys()))
+        if len(self.chosen_data_dict) == 0:
             return True
         else:
-            for i in self.data_dict.keys():
+            for i in self.chosen_data_dict.keys():
                 print 'found %s' % i
-            return self.data_dict
+
+            return self.chosen_data_dict
 
     def clean_string(self, data):
         return re.sub(pattern='\s*\n\s*', repl='', string=data)
+
+    def data_posted(self, element_inst):
+        date_posted = element_inst.find('span', attrs={'class': 'posted'}).text
+        a = ['hours', 'min']
+        for i in a:
+            if i in date_posted:
+                return str(datetime.datetime.today()).strip(r'[.]\d+')
+            else:
+                return date_posted
 
     def checker(self, page, keyword):
         curr_occ = 0
@@ -46,20 +63,29 @@ class mine:
             details = i.find('div', {'class': 'job-detail'}).text
             location = i.find('h2', {'project-title'}).a['href']
             skills = i.find("div", {'class': 'ptopleft1'}).text
+            date_posted = self.data_posted(i)
             a = self.checker((title, details, skills), keyword)
-            if a > 0:
-                self.data_dict[title] = [[details, skills], location]
-                self.data_dict[title].append(self.get_values(self.base + location))
+            data_dict = {'title': title, 'details': details, 'skills': skills, 'location': location,
+                         'date posted': date_posted}
+            if a > 0 and not self.db.check_if_data_present(data_dict):
+                self.chosen_data_dict[title] = [[details, skills], 'http://www.worknhire.com/' + location]
+                self.chosen_data_dict[title].append(self.get_values(self.base + location))
+            self.db.insert_data(data_dict)
 
     def get_values(self, location):  # get accepted filter job data
         soup = self.parseing(str(location))
-        no_bids = len(soup.find_all('div', {'class': 'job-bidder'}))
-        time_frame = soup.find('div', {'id': 'info'})
-        time_frame = time_frame.find('div', {'class': 'heading'}).span.text
+        try:
+            no_bids = len(soup.find_all('div', {'class': 'job-bidder'}))
+            time_frame = soup.find('div', {'id': 'info'})
+            time_frame = time_frame.find('div', {'class': 'heading'}).span.text
+        except:
+            no_bids = 'Not Available'
+            time_frame = 'Not Available'
         return (no_bids, time_frame)
 
 
 if __name__ == '__main__':
+
     a = mine().run()
     if a is None:
         print 'Nooooooo'

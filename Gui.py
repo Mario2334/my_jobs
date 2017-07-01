@@ -28,8 +28,8 @@ class GUI:
             skills = job_details[0][1]
             easygui.textbox(msg=msg, title=title, text=
             '''
-            {0}\nLocation : {1}\nDetails : {2}
+            {0}\n<a>Location : {1}</a>\nDetails : {2}
             \n
             No of Bids : {3} \t Time required :{4} \n Skills : {5}
-            '''.format(choice, job_loc, job_desc, no_of_bids, time_taken, skills))
+            '''.format(choice, 'http://www.worknhire.com/' + job_loc, job_desc, no_of_bids, time_taken, skills))
             break

@@ -1,12 +1,31 @@
+import datetime
 import logging
+import os
 import sys
 import threading
+import time
 
 import easygui
 
-from jobs_scrape import mine
+from jobs_scrape_wnh import mine
 
-logger = logging.getLogger(__name__)
+logger = logging
+
+
+def getLogger():
+    if not os.path.exists("log"):
+        os.makedirs("log")
+
+    file_name = 'logfile'
+
+    logging.basicConfig(filename=file_name,
+                        filemode="a+",
+                        format='%(asctime)s,%(msecs)d %(name)s %(levelname)s %(message)s',
+                        datefmt='%H:%M:%S',
+                        level=logging.INFO)
+    logger = logging.getLogger()
+    logger.setLevel(logging.INFO)
+
 
 def threaded(f, daemon=False):
     import Queue
@@ -41,6 +60,8 @@ def run(data):
     msg = 'New jobs %d' % len(data)
     title = 'New Jobs opportunities found'
     choice = easygui.choicebox(msg=msg, title=title, choices=choices)
+    if choice is None:
+        return 0
     job_details = data[choice]
     job_desc = job_details[0][0]
     job_loc = job_details[1]
@@ -54,6 +75,7 @@ def run(data):
         No of Bids : {3} \t Paymentx :{4} \n Skills : {5}
         '''.format(choice.encode('utf-8'), job_loc.encode('utf-8'), job_desc.encode('utf-8'),
                    str(no_of_bids).encode('utf-8'), Payment.encode('utf-8'), skills.encode('utf-8')))
+    return 1
 
 
 def start():
@@ -63,9 +85,6 @@ def start():
 
 
 def get_data():
-    import time
-    logger.info('time has started')
-    time.sleep(5 * 1 / 5)
     return mine().run()
 
 
@@ -76,20 +95,37 @@ def wrapper(func, *args, **kwargs):
     return wrapped
 
 
+def gui_inst(a):
+    v = run(data=a)
+    if v == 0:
+        return True
+    # t.stop()
+    if easygui.ccbox():
+        logger.info('accepted')
+        return True
+    else:
+        logger.info('Cancelled')
+        return False
+
+
 if __name__ == '__main__':
-    import stopwatch
+    import re
+
+    getLogger()
 
     while 1:
-        t = stopwatch.Timer()
         a = get_data()
-        logger.info('length 1 ' + str(a[a.keys()[0]][0][0]))
-        print 'time for mining' + str(t.elapsed)
-        run(data=a)
-        t.stop()
-        print 'after whole' + str(t.elapsed)
-        if easygui.ccbox():
-            logger.info('accepted')
-            continue
+        if a == True:
+            print "No interested data found"
+            logger.info('No interested data found')
         else:
-            logger.info('Cancelled')
-            break
+            print type(a)
+            print len(a)
+            a = gui_inst(a)
+            if not a:
+                logger.info('System exiting with status 1')
+                print 'system exiting in a minute'
+                time.sleep(60)
+                sys.exit(1)
+        print 'sleeping at %s' % re.sub(string=str(datetime.datetime.utcnow()), pattern='[.]\d+', repl='')
+        time.sleep(60 * 30)
