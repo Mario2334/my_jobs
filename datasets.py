@@ -3,7 +3,12 @@ import pymongo
 
 class mongoclient:
     def __init__(self):
-        client = pymongo.MongoClient('mongodb://localhost:27017')
+        # mongo_uri = "mongodb://:sanketm221995" + urllib.quote("sohana@123") +
+        # "@cluster0-shard-00-00-hf2ut.mongodb.net:27017,cluster0-shard-00-01-hf2ut.mongodb.net:27017,
+        # cluster0-shard-00-02-hf2ut.mongodb.net:27017/<DATABASE>?ssl=true&replicaSet=Cluster0-shard-0&authSource
+        # =admin"
+        client = pymongo.MongoClient("mongodb://localhost:27017/")
+        print 'connected'
         jobs_db = client['jobs']
         self.table = jobs_db['extracted jobs']
 
