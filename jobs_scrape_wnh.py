@@ -16,13 +16,12 @@ class mine:
         self.chosen_data_dict = dict()
         self.db = mongoclient()
 
-
-    def parseing(self, location):
+    def parsing(self, location):
         data = requests.get(location)
         return BeautifulSoup(data.content, 'lxml')
 
     def run(self):
-        data = self.parseing(self.location)
+        data = self.parsing(self.location)
         # job_list = data.find_all('h2', attrs={'class': 'project-title'})
         self.interesting(data, self.keywords)
         print (len(self.chosen_data_dict.keys()))
@@ -73,7 +72,7 @@ class mine:
             self.db.insert_data(data_dict)
 
     def get_values(self, location):  # get accepted filter job data
-        soup = self.parseing(str(location))
+        soup = self.parsing(str(location))
         try:
             no_bids = len(soup.find_all('div', {'class': 'job-bidder'}))
             time_frame = soup.find('div', {'id': 'info'})

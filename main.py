@@ -128,4 +128,4 @@ if __name__ == '__main__':
                 time.sleep(60)
                 sys.exit(1)
         print 'sleeping at %s' % re.sub(string=str(datetime.datetime.utcnow()), pattern='[.]\d+', repl='')
-        time.sleep(60 * 30)
+        time.sleep(60 * 10)
