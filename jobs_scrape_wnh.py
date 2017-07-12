@@ -57,9 +57,15 @@ class mine:
     def interesting(self, soup_page, keyword):  # checking jobs page for clues
         print 'running interesting'
         job_listing = soup_page.find_all('div', {'class': 'jobdetails'})
+        matcher_1 = re.compile("(.)+(?=[.]{3})")
         for i in job_listing:
             title = i.find('h2', {'class': 'project-title'}).a.text
-            details = i.find('div', {'class': 'job-detail'}).text
+            details = i.find('div', {'class': 'job-detail'}).find_all('div', {'class': 'desc'})
+            if len(details) > 1:
+                details = details[1].text
+            else:
+                details = details[0].text
+            #            details = re.sub(matcher_1,'',details).replace('...','')
             location = i.find('h2', {'project-title'}).a['href']
             skills = i.find("div", {'class': 'ptopleft1'}).text
             date_posted = self.data_posted(i)
