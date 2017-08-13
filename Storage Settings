@@ -1,0 +1,6 @@
+data Format:
+    date posted
+    title
+    skills
+    location
+    details

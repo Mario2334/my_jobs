@@ -11,10 +11,10 @@ class mine:
     def __init__(self):
         self.base = 'http://worknhire.com'
         self.location = self.base + '/WorkProjects/jobs'
-        self.keywords = open('C:\Users\Hellrazer\PycharmProjects\my_jobs\Keywords').readlines()
+        self.keywords = open('C:\\Users\Hellrazer\PycharmProjects\my_jobs\Keywords').readlines()
         self.data_dict = dict()
         self.chosen_data_dict = dict()
-        self.db = mongoclient()
+        self.db = mongoclient('extracted jobs wnh')
 
     def parsing(self, location):
         data = requests.get(location)
@@ -29,7 +29,7 @@ class mine:
             return True
         else:
             for i in self.chosen_data_dict.keys():
-                print 'found %s' % i
+                print('found %s' % i)
 
             return self.chosen_data_dict
 
@@ -38,8 +38,8 @@ class mine:
 
     def data_posted(self, element_inst):
         date_posted = element_inst.find('span', attrs={'class': 'posted'}).text
-        a = ['hours', 'min']
-        for i in a:
+        date_identify_index = ['hours', 'min']
+        for i in date_identify_index:
             if i in date_posted:
                 return str(datetime.datetime.today()).strip(r'[.]\d+')
             else:
@@ -55,7 +55,7 @@ class mine:
         return curr_occ
 
     def interesting(self, soup_page, keyword):  # checking jobs page for clues
-        print 'running interesting'
+        print('running interesting')
         job_listing = soup_page.find_all('div', {'class': 'jobdetails'})
         matcher_1 = re.compile("(.)+(?=[.]{3})")
         for i in job_listing:
@@ -93,4 +93,4 @@ if __name__ == '__main__':
 
     a = mine().run()
     if a is None:
-        print 'Nooooooo'
+        print('Nooooooo')

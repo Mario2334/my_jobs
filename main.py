@@ -1,4 +1,3 @@
-import datetime
 import logging
 import os
 import sys
@@ -66,15 +65,15 @@ def run(data):
     job_desc = job_details[0][0]
     job_loc = job_details[1]
     no_of_bids = job_details[2][0]
-    Payment = job_details[2][1]
+    payment = job_details[2][1]
     skills = job_details[0][1]
     easygui.textbox(msg=msg, title=title, text=
     '''
         {0}\nLocation : {1}\nDetails : {2}
         \n
-        No of Bids : {3} \t Paymentx :{4} \n Skills : {5}
+        No of Bids : {3} \t Payment :{4} \n Skills : {5}
         '''.format(choice.encode('utf-8'), job_loc.encode('utf-8'), job_desc.encode('utf-8'),
-                   str(no_of_bids).encode('utf-8'), Payment.encode('utf-8'), skills.encode('utf-8')))
+                   str(no_of_bids).encode('utf-8'), payment.encode('utf-8'), skills.encode('utf-8')))
     return 1
 
 
@@ -116,16 +115,17 @@ if __name__ == '__main__':
     while 1:
         a = get_data()
         if a == True:
-            print "No interested data found"
+            print("No interested data found")
             logger.info('No interested data found')
         else:
-            print type(a)
-            print len(a)
+            print(type(a))
+            print(len(a))
             a = gui_inst(a)
             if not a:
                 logger.info('System exiting with status 1')
-                print 'system exiting in a minute'
+                print('system exiting in a minute')
                 time.sleep(60)
                 sys.exit(1)
-        print 'sleeping at %s' % re.sub(string=str(datetime.datetime.utcnow()), pattern='[.]\d+', repl='')
+        print('sleeping at %s' % re.sub(pattern='[.]\d+', string=time.strftime("%a, %d %b %Y %X +0000", time.gmtime()),
+                                        repl=''))
         time.sleep(60 * 10)
