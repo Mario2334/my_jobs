@@ -33,7 +33,8 @@ class mine:
 
             return self.chosen_data_dict
 
-    def clean_string(self, data):
+    @staticmethod
+    def clean_string(data):
         return re.sub(pattern='\s*\n\s*', repl='', string=data)
 
     def data_posted(self, element_inst):

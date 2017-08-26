@@ -2,12 +2,14 @@ from bs4 import BeautifulSoup
 from selenium import webdriver
 
 from datasets import mongoclient
+from jobs_scrape_wnh import mine
 
 
 class job_getter:
     def __init__(self):
         self.browser = webdriver.Chrome()
-        self.base_url = 'https://www.upwork.com/o/jobs/browse/?from_recent_search=true&q=Python&sort=renew_time_int%2Bdesc'
+        self.base_url = 'https://www.upwork.com/o/jobs/browse/?from_recent_search=true&q=Python&sort=renew_time_int' \
+                        '%2Bdesc '
         self.client = mongoclient('extracted jobs upwork')
 
     def render_page(self, url):
@@ -24,7 +26,7 @@ class job_getter:
         jobs_list = jobs_list.find_all('section', attrs={'class': 'job-tile'})
         for i in jobs_list:
             _id = i['data-key']
-            title = i.find('h2', {'class': 'm-0'}).text
+            title = mine.clean_string(i.find('h2', {'class': 'm-0'}).text)
             details = i.find('div', {'class': 'description break'}).find('span', attrs={
                 'data-ng-bind-html': "htmlToTruncate"}).text
             price_type = i.find('strong', attrs={'class': 'js-type'}).text
@@ -33,7 +35,7 @@ class job_getter:
             try:
                 budget = i.find('span', attrs={'itemprop': 'baseSalary'}).text
             except AttributeError:
-                budget = i.find('span', attrs={'class': 'js-duration'}).text
+                budget = mine.clean_string(i.find('span', attrs={'class': 'js-duration'}).text)
                 pass
             print('_id: {} \n title : {} \n details : {} \n type: {} \n skill: {} \n budget : {} \n'.format(_id,
                                                                                                             title,
