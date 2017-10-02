@@ -1,13 +1,16 @@
 from bs4 import BeautifulSoup
 from selenium import webdriver
-
+import os
 from datasets import mongoclient
 from jobs_scrape_wnh import mine
 
 
 class job_getter:
     def __init__(self):
+#        path = '/home/hellrazer/PycharmProjects/my_jobs/chromedriver'
+#        os.environ["webdriver.chrome.driver"] = path
         self.browser = webdriver.Chrome()
+#        self.browser = webdriver.Firefox()
         self.base_url = 'https://www.upwork.com/o/jobs/browse/?from_recent_search=true&q=Python&sort=renew_time_int' \
                         '%2Bdesc '
         self.client = mongoclient('extracted jobs upwork')
@@ -26,7 +29,7 @@ class job_getter:
         jobs_list = jobs_list.find_all('section', attrs={'class': 'job-tile'})
         for i in jobs_list:
             _id = i['data-key']
-            title = mine.clean_string(i.find('h2', {'class': 'm-0'}).text)
+            title = mine.clean_string(i.find('h4', {'class': 'm-0'}).text)
             details = i.find('div', {'class': 'description break'}).find('span', attrs={
                 'data-ng-bind-html': "htmlToTruncate"}).text
             price_type = i.find('strong', attrs={'class': 'js-type'}).text

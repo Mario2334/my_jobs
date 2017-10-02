@@ -1,8 +1,8 @@
 import datetime
 import re
-
 import requests
 from bs4 import BeautifulSoup
+import os
 
 from datasets import mongoclient
 
@@ -11,7 +11,7 @@ class mine:
     def __init__(self):
         self.base = 'http://worknhire.com'
         self.location = self.base + '/WorkProjects/jobs'
-        self.keywords = open('C:\\Users\Hellrazer\PycharmProjects\my_jobs\Keywords').readlines()
+        self.keywords = open(os.getcwd()+'//Keywords').readlines()
         self.data_dict = dict()
         self.chosen_data_dict = dict()
         self.db = mongoclient('extracted jobs wnh')

@@ -63,20 +63,21 @@ def open_win(win):
 def check_stop():
     return app.yesNoBox('box', 'DO you want to exit')
 
+if __name__=='__main__':
 
-app = appJar.gui('Hire me')
+    app = appJar.gui('Hire me')
 
-app.startTabbedFrame('Jobs')
-app.startTab('worknhire')
-app.registerEvent(get_wnhjobs)
-app.setPollTime(time=10 * 60 * 1000)
-app.addListBox('wnhjobs')
-app.stopTab()
-app.startTab('upwork')
-app.addListBox('upjobs')
-app.stopTab()
-app.stopTabbedFrame()
-app.addButton('get data', open_win)
+    app.startTabbedFrame('Jobs')
+    app.startTab('worknhire')
+    app.registerEvent(get_wnhjobs)
+    app.setPollTime(time=10 * 60 * 1000)
+    app.addListBox('wnhjobs')
+    app.stopTab()
+    app.startTab('upwork')
+    app.addListBox('upjobs')
+    app.stopTab()
+    app.stopTabbedFrame()
+    app.addButton('get data', open_win)
 
-app.setStopFunction(check_stop)
-app.go("200  500")
+    app.setStopFunction(check_stop)
+    app.go("200  500")
