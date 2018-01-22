@@ -10,7 +10,7 @@ from datasets import mongoclient
 class mine:
     def __init__(self):
         self.base = 'http://worknhire.com'
-        self.location = self.base + '/WorkProjects/jobs'
+        self.location = self.base + '/WorkProjects/jobs/cat_IT-&-Programming'
         self.keywords = open(os.getcwd()+'//Keywords').readlines()
         self.data_dict = dict()
         self.chosen_data_dict = dict()
@@ -43,8 +43,8 @@ class mine:
         for i in date_identify_index:
             if i in date_posted:
                 return str(datetime.datetime.today()).strip(r'[.]\d+')
-            else:
-                return date_posted
+
+        return date_posted
 
     def checker(self, page, keyword):
         curr_occ = 0
@@ -68,11 +68,12 @@ class mine:
                 details = details[0].text
             #            details = re.sub(matcher_1,'',details).replace('...','')
             location = i.find('h2', {'project-title'}).a['href']
-            skills = i.find("div", {'class': 'ptopleft1'}).text
+            skills = i.find("div", {'class': 'ptopleft1'}).text.strip('\nSkills:\n')
             date_posted = self.data_posted(i)
             a = self.checker((title, details, skills), keyword)
             data_dict = {'title': title, 'details': details, 'skills': skills, 'location': location,
                          'date posted': date_posted}
+            print(data_dict)
             if a > 0 and not self.db.check_if_data_present(data_dict):
                 self.chosen_data_dict[title] = [[details, skills], 'http://www.worknhire.com/' + location]
                 self.chosen_data_dict[title].append(self.get_values(self.base + location))
