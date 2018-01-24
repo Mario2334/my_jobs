@@ -1,6 +1,10 @@
-from selenium import webdriver
-import datetime, time
 import csv
+import datetime
+import time
+
+from selenium import webdriver
+
+from datasets import mongoclient
 
 
 class internshala():
@@ -11,22 +15,33 @@ class internshala():
         self.writer.writerow(['Date Posted', 'Title', 'Company', 'Locations', 'Stipend', 'Start Date', 'Duration'])
         self.url = 'https://internshala.com/internships/python%2Fdjango-internship'
         self.driver.get('https://internshala.com/internships/python%2Fdjango-internship')
+        self.conn = mongoclient('internshala')
 
-    def run(self, is_csv):
+    def run(self):
+        now = datetime.datetime.now()
+        if now.hour < 8 or now.hour > 10:
+            return None
+        if now.weekday() > 6:
+            return None
         data = self.get_posts(self.driver)
-        print(data)
+        filtered_data = list()
         self.driver.close()
-        if is_csv:
-            for post in data:
-                self.writer.writerow(post)
-        else:
-            return data
+        # if is_csv:
+        #     for post in data:
+        #         self.writer.writerow(post)
+        # else:
+        #     return data
+        for interns in data:
+            if not self.conn.check_id(interns['_id']):
+                self.conn.insert_data(interns, True)
+                filtered_data.append(interns)
+        print(data)
+
 
     def get_posts(self, driver):
         time_then = str(datetime.date.today() - datetime.timedelta(6 * 365 / 12))
         time_then = int(time.mktime(datetime.datetime.strptime(time_then, "%Y-%m-%d").timetuple()))
         posts = list()
-
         post_list = driver.find_elements_by_xpath("//div[@id = 'internship_list_container']/div")
         if len(post_list) < 2:
             return posts
@@ -46,6 +61,7 @@ class internshala():
                 '//div[@internshipid = {}]/div[@class = "individual_internship_header"]/div[@class = '
                 '"table-cell"]/h4'.format(
                     intern_id))
+            link = title[0].find_element_by_tag_name('a').get_attribute('href')
             company = title[1].text
             title = title[0].text
             locations_list = [location.text for location in
@@ -54,9 +70,13 @@ class internshala():
             start_Date = details[0].text
             duration = details[1].text
             stipend = details[2].text
-            posts.append([date, title, company, locations_list, stipend, start_Date, duration])
+            posts.append(
+                {'_id': intern_id, 'Date': date, 'Title': title, 'Company': company, 'Locations': locations_list,
+                 'Stipend': stipend,
+                 'Start': start_Date,
+                 'Time period': duration, 'link': link})
         return posts
 
 
 if __name__ == '__main__':
-    internshala().run(True)
+    internshala().run()

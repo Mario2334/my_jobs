@@ -1,6 +1,8 @@
-from threading import Timer,Lock
-from jobs_scrape_wnh import mine
+from threading import Timer, Lock
+
 from intsla_scrapper import internshala
+from jobs_scrape_wnh import mine
+
 
 class Periodic(object):
 
@@ -35,5 +37,5 @@ class Periodic(object):
 
 
 if __name__ == '__main__':
-        wnh = Periodic(60*5 , mine().run)
-        internsl = Periodic(60*10 , internshala().run , True)
+    wnh = Periodic(60 * 60 * 3, mine().run)
+    internsl = Periodic(60 * 60 * 4, internshala().run)
