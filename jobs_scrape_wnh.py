@@ -1,20 +1,24 @@
 import datetime
+import os
 import re
+
 import requests
 from bs4 import BeautifulSoup
-import os
 
 from datasets import mongoclient
+from job_scrape_upwork import job_getter
+from mail import mailer
 
 
 class mine:
     def __init__(self):
         self.base = 'http://worknhire.com'
         self.location = self.base + '/WorkProjects/jobs/cat_IT-&-Programming'
-        self.keywords = open(os.getcwd()+'//Keywords').readlines()
+        self.keywords = open(os.getcwd() + '//Keywords').readlines()
         self.data_dict = dict()
         self.chosen_data_dict = dict()
         self.db = mongoclient('extracted jobs wnh')
+        self.mailer = mailer(subject='jobs of worknhire')
 
     def parsing(self, location):
         data = requests.get(location)
@@ -24,7 +28,7 @@ class mine:
         data = self.parsing(self.location)
         # job_list = data.find_all('h2', attrs={'class': 'project-title'})
         self.interesting(data, self.keywords)
-        print (len(self.chosen_data_dict.keys()))
+        print(len(self.chosen_data_dict.keys()))
         if len(self.chosen_data_dict) == 0:
             return True
         else:
@@ -57,6 +61,7 @@ class mine:
 
     def interesting(self, soup_page, keyword):  # checking jobs page for clues
         print('running interesting')
+        interesting_data = list()
         job_listing = soup_page.find_all('div', {'class': 'jobdetails'})
         matcher_1 = re.compile("(.)+(?=[.]{3})")
         for i in job_listing:
@@ -66,7 +71,7 @@ class mine:
                 details = details[1].text
             else:
                 details = details[0].text
-            #            details = re.sub(matcher_1,'',details).replace('...','')
+            # details = re.sub(matcher_1,'',details).replace('...','')
             location = i.find('h2', {'project-title'}).a['href']
             skills = i.find("div", {'class': 'ptopleft1'}).text.strip('\nSkills:\n')
             date_posted = self.data_posted(i)
@@ -77,7 +82,10 @@ class mine:
             if a > 0 and not self.db.check_if_data_present(data_dict):
                 self.chosen_data_dict[title] = [[details, skills], 'http://www.worknhire.com/' + location]
                 self.chosen_data_dict[title].append(self.get_values(self.base + location))
+                interesting_data.append(data_dict)
             self.db.insert_data(data_dict)
+        topics, details = job_getter.split_data(self.data_dict)
+        self.mailer.send_html_email(topics, details)
 
     def get_values(self, location):  # get accepted filter job data
         soup = self.parsing(str(location))

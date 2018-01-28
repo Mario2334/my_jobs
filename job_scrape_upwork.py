@@ -1,6 +1,6 @@
 from bs4 import BeautifulSoup
 from selenium import webdriver
-import os
+
 from datasets import mongoclient
 from jobs_scrape_wnh import mine
 
@@ -54,7 +54,18 @@ class job_getter:
                                                                                                             price_type,
                                                                                                             skill_level,
                                                                                                             budget))
+        topics, dets = self.split_data(jobs_list)
         pass
+
+    @staticmethod
+    def split_data(data):
+        topics = list()
+        details = list()
+        for row in data:
+            if data.index(row) == 0:
+                topics = [i for i in row]
+            details.append([row[data] for data in topics])
+        return topics, details
 
 
 if __name__ == '__main__':

@@ -5,6 +5,8 @@ import time
 from selenium import webdriver
 
 from datasets import mongoclient
+from job_scrape_upwork import job_getter
+from mail import mailer
 
 
 class internshala():
@@ -14,15 +16,15 @@ class internshala():
         self.writer = csv.writer(self.file)
         self.writer.writerow(['Date Posted', 'Title', 'Company', 'Locations', 'Stipend', 'Start Date', 'Duration'])
         self.url = 'https://internshala.com/internships/python%2Fdjango-internship'
-        self.driver.get('https://internshala.com/internships/python%2Fdjango-internship')
-        self.conn = mongoclient('internshala')
 
     def run(self):
         now = datetime.datetime.now()
-        if now.hour < 8 or now.hour > 10:
+        if now.hour < 8 or now.hour > 22:
             return None
         if now.weekday() > 6:
             return None
+        self.driver.get('https://internshala.com/internships/python%2Fdjango-internship')
+        self.conn = mongoclient('internshala')
         data = self.get_posts(self.driver)
         filtered_data = list()
         self.driver.close()
@@ -35,8 +37,9 @@ class internshala():
             if not self.conn.check_id(interns['_id']):
                 self.conn.insert_data(interns, True)
                 filtered_data.append(interns)
+        topics, details = job_getter.split_data(filtered_data)
+        mailer('internship of internshala').send_html_email(topics=topics, details=details)
         print(data)
-
 
     def get_posts(self, driver):
         time_then = str(datetime.date.today() - datetime.timedelta(6 * 365 / 12))
@@ -71,7 +74,7 @@ class internshala():
             duration = details[1].text
             stipend = details[2].text
             posts.append(
-                {'_id': intern_id, 'Date': date, 'Title': title, 'Company': company, 'Locations': locations_list,
+                {'_id': int(intern_id), 'Date': date, 'Title': title, 'Company': company, 'Locations': locations_list,
                  'Stipend': stipend,
                  'Start': start_Date,
                  'Time period': duration, 'link': link})
