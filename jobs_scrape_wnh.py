@@ -6,7 +6,7 @@ import requests
 from bs4 import BeautifulSoup
 
 from datasets import mongoclient
-from job_scrape_upwork import job_getter
+import job_scrape_upwork as upwork
 from mail import mailer
 
 
@@ -76,7 +76,7 @@ class mine:
             skills = i.find("div", {'class': 'ptopleft1'}).text.strip('\nSkills:\n')
             date_posted = self.data_posted(i)
             a = self.checker((title, details, skills), keyword)
-            data_dict = {'title': title, 'details': details, 'skills': skills, 'location': location,
+            data_dict = {'title': title, 'details': details, 'skills': skills, 'link': location,
                          'date posted': date_posted}
             print(data_dict)
             if a > 0 and not self.db.check_if_data_present(data_dict):
@@ -84,8 +84,9 @@ class mine:
                 self.chosen_data_dict[title].append(self.get_values(self.base + location))
                 interesting_data.append(data_dict)
             self.db.insert_data(data_dict)
-        topics, details = job_getter.split_data(self.data_dict)
-        self.mailer.send_html_email(topics, details)
+        if len(interesting_data) > 0:
+            topics, details = upwork.job_getter.split_data(interesting_data)
+            self.mailer.send_html_email(topics, details)
 
     def get_values(self, location):  # get accepted filter job data
         soup = self.parsing(str(location))
@@ -93,6 +94,7 @@ class mine:
             no_bids = len(soup.find_all('div', {'class': 'job-bidder'}))
             time_frame = soup.find('div', {'id': 'info'})
             time_frame = time_frame.find('div', {'class': 'heading'}).span.text
+
         except:
             no_bids = 'Not Available'
             time_frame = 'Not Available'

@@ -13,8 +13,8 @@ class internshala():
     def __init__(self):
         self.driver = webdriver.Chrome()
         self.file = open('intern_info.csv', 'w')
-        self.writer = csv.writer(self.file)
-        self.writer.writerow(['Date Posted', 'Title', 'Company', 'Locations', 'Stipend', 'Start Date', 'Duration'])
+        # self.writer = csv.writer(self.file)
+        # self.writer.writerow(['Date Posted', 'Title', 'Company', 'Locations', 'Stipend', 'Start Date', 'Duration'])
         self.url = 'https://internshala.com/internships/python%2Fdjango-internship'
 
     def run(self):
@@ -37,9 +37,10 @@ class internshala():
             if not self.conn.check_id(interns['_id']):
                 self.conn.insert_data(interns, True)
                 filtered_data.append(interns)
-        topics, details = job_getter.split_data(filtered_data)
-        mailer('internship of internshala').send_html_email(topics=topics, details=details)
-        print(data)
+        if len(filtered_data) > 1:
+            topics, details = job_getter.split_data(filtered_data)
+            mailer('internship of internshala').send_html_email(topics=topics, details=details)
+            print(data)
 
     def get_posts(self, driver):
         time_then = str(datetime.date.today() - datetime.timedelta(6 * 365 / 12))
@@ -83,3 +84,4 @@ class internshala():
 
 if __name__ == '__main__':
     internshala().run()
+

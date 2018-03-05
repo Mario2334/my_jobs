@@ -3,7 +3,7 @@ import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
-from flask import render_template
+import jinja2
 
 
 class mailer():
@@ -22,11 +22,22 @@ class mailer():
         mail.sendmail(from_addr=sender, to_addrs=to_send, msg=email.as_string())
         mail.quit()
 
+    @staticmethod
+    def render(tpl_path, context):
+        path, filename = os.path.split(tpl_path)
+        return jinja2.Environment(
+            loader=jinja2.FileSystemLoader(path or './')
+        ).get_template(filename).render(context)
+
     def send_html_email(self, topics, details):
         self.msg['Subject'] = self.subject
         self.msg['From'] = self.me
         self.msg['to'] = self.you
-        html = render_template(os.path.join(os.getcwd(), 'test report.html'), topics=topics, details=details)
+        context = {
+            'topics': topics,
+            'details': details
+        }
+        html = self.render('report.html', context=context)
         part1 = MIMEText('Hii', 'plain')
         part2 = MIMEText(html, 'html')
         self.msg.attach(part1)

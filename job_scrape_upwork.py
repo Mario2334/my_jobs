@@ -1,6 +1,6 @@
 from bs4 import BeautifulSoup
 from selenium import webdriver
-
+from sortedcontainers import SortedDict
 from datasets import mongoclient
 from jobs_scrape_wnh import mine
 
@@ -27,6 +27,7 @@ class job_getter:
 
     def get_jobs(self):
         soup = self.render_page(self.base_url)
+        # get jobs list
         jobs_list = soup.find('div', attrs={'id': 'jobs-list'})
         if not jobs_list:
             pass
@@ -62,6 +63,7 @@ class job_getter:
         topics = list()
         details = list()
         for row in data:
+            row = SortedDict(row)
             if data.index(row) == 0:
                 topics = [i for i in row]
             details.append([row[data] for data in topics])
