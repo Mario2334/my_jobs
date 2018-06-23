@@ -37,7 +37,7 @@ class mailer():
             'topics': topics,
             'details': details
         }
-        html = self.render('report.html', context=context)
+        html = self.render(r'C:\Users\Administrator\Downloads\my_jobs-master\my_jobs-master\report.html', context=context)
         part1 = MIMEText('Hii', 'plain')
         part2 = MIMEText(html, 'html')
         self.msg.attach(part1)

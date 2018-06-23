@@ -1,6 +1,6 @@
 import datetime
 import os
-import re
+import re,time
 
 import requests
 from bs4 import BeautifulSoup
@@ -8,13 +8,17 @@ from bs4 import BeautifulSoup
 from datasets import mongoclient
 import job_scrape_upwork as upwork
 from mail import mailer
+import logging
+
+
+                             
 
 
 class mine:
     def __init__(self):
         self.base = 'http://worknhire.com'
         self.location = self.base + '/WorkProjects/jobs/cat_IT-&-Programming'
-        self.keywords = open(os.getcwd() + '//Keywords').readlines()
+        self.keywords = open(r'C:\Users\Administrator\Downloads\my_jobs-master\my_jobs-master\keywords').readlines()
         self.data_dict = dict()
         self.chosen_data_dict = dict()
         self.db = mongoclient('extracted jobs wnh')
@@ -22,7 +26,7 @@ class mine:
 
     def parsing(self, location):
         data = requests.get(location)
-        return BeautifulSoup(data.content, 'lxml')
+        return BeautifulSoup(data.content)
 
     def run(self):
         data = self.parsing(self.location)
@@ -72,7 +76,7 @@ class mine:
             else:
                 details = details[0].text
             # details = re.sub(matcher_1,'',details).replace('...','')
-            location = i.find('h2', {'project-title'}).a['href']
+            location = 'https://worknhire.com'+i.find('h2', {'project-title'}).a['href']
             skills = i.find("div", {'class': 'ptopleft1'}).text.strip('\nSkills:\n')
             date_posted = self.data_posted(i)
             a = self.checker((title, details, skills), keyword)
@@ -102,7 +106,15 @@ class mine:
 
 
 if __name__ == '__main__':
-
-    a = mine().run()
-    if a is None:
-        print('Nooooooo')
+    logger = logging.getLogger('wnh')
+    hdlr = logging.FileHandler('wnh.log')
+    formatter =logging.Formatter('%(asctime)s %(levelname)s %(message)s')
+    hdlr.setFormatter(formatter)
+    while True:
+        a = mine().run()
+        if a is None:
+            print('Nooooooo')
+        else:
+            print('Done')
+        time.sleep(10*60)
+                             

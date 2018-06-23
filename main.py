@@ -38,4 +38,6 @@ class Periodic(object):
 
 if __name__ == '__main__':
     wnh = Periodic(60 * 60 * 3, mine().run)
-    internsl = Periodic(60 * 60 * 4, internshala().run)
+ #   internsl = Periodic(60 * 60 * 4, internshala().run)
+    #mine().run()
+    #internshala().run()

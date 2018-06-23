@@ -11,7 +11,9 @@ from mail import mailer
 
 class internshala():
     def __init__(self):
-        self.driver = webdriver.Chrome()
+        options = webdriver.ChromeOptions()
+        options.add_argument(r"user-data-dir=C:\Users\Administrator\AppData\Local\Google\Chrome\User Data")
+        self.driver = webdriver.Chrome(r'C:\Users\Administrator\Downloads\my_jobs-master\my_jobs-master\chromedriver.exe',chrome_options=options)
         self.file = open('intern_info.csv', 'w')
         # self.writer = csv.writer(self.file)
         # self.writer.writerow(['Date Posted', 'Title', 'Company', 'Locations', 'Stipend', 'Start Date', 'Duration'])
@@ -56,13 +58,14 @@ class internshala():
         for post in post_list:
             intern_id = post.get_attribute('internshipid')
             details = post.find_elements_by_xpath(
-                '//div[@internshipid = {}]/div[@class = "individual_internship_details"]/div/table['
+                '//div[@internshipid = {}]/div[@class="internship_meta"]/div['
+                '@class="individual_internship_details"]//table[ '
                 '@class="table"]/tbody/tr/td'.format(
                     intern_id))
             date = details[3].text.replace("'", " ")
             date = int(time.mktime(datetime.datetime.strptime(date, "%d %b %y").timetuple()))
             title = post.find_elements_by_xpath(
-                '//div[@internshipid = {}]/div[@class = "individual_internship_header"]/div[@class = '
+                '//div[@internshipid = {}]/div[@class = "internship_meta"]/div[@class = "individual_internship_header"]/div[@class = '
                 '"table-cell"]/h4'.format(
                     intern_id))
             link = title[0].find_element_by_tag_name('a').get_attribute('href')
@@ -70,7 +73,7 @@ class internshala():
             title = title[0].text
             locations_list = [location.text for location in
                               post.find_elements_by_xpath(
-                                  '//div[@internshipid = {}]/div[2]/p/span[2]/a'.format(intern_id))]
+                                  '//div[@internshipid = {}]/div[@class = "internship_meta"]/div[2]/p/span[2]/a'.format(intern_id))]
             start_Date = details[0].text
             duration = details[1].text
             stipend = details[2].text
@@ -84,4 +87,3 @@ class internshala():
 
 if __name__ == '__main__':
     internshala().run()
-
