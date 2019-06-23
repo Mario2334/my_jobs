@@ -18,7 +18,7 @@ class mailer():
         mail = smtplib.SMTP('smtp.gmail.com', 587)
         mail.ehlo()
         mail.starttls()
-        mail.login('sanket.mokashi95@gmail.com', 'macwiz123')
+        mail.login('sanket.django@gmail.com', 'sanket123')
         mail.sendmail(from_addr=sender, to_addrs=to_send, msg=email.as_string())
         mail.quit()
 
@@ -37,7 +37,8 @@ class mailer():
             'topics': topics,
             'details': details
         }
-        html = self.render(r'C:\Users\Administrator\Downloads\my_jobs-master\my_jobs-master\report.html', context=context)
+        location = os.path.join(os.getcwd() ,"templates" ,"report.html")
+        html = self.render(location, context=context)
         part1 = MIMEText('Hii', 'plain')
         part2 = MIMEText(html, 'html')
         self.msg.attach(part1)

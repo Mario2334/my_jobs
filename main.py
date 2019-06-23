@@ -1,8 +1,6 @@
 from threading import Timer, Lock
 
-from intsla_scrapper import internshala
-from jobs_scrape_wnh import mine
-
+from scrapers.jobs_scrape_wnh import mine
 
 class Periodic(object):
 
